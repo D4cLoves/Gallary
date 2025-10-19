@@ -76,12 +76,33 @@ namespace GallaryApp.Controllers
         // POST: api/PhotoControll
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Photo>> PostPhoto(Photo photo)
+        public async Task<ActionResult<Photo>> PostPhoto([FromForm] IFormFile photo)
         {
-            _context.Photos.Add(photo);
-            await _context.SaveChangesAsync();
+            var FileName = Guid.NewGuid().ToString() + Path.GetExtension(photo.FileName);
+            
+            var UploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (!Directory.Exists(UploadsFolder))
+                Directory.CreateDirectory(UploadsFolder);
+            
+            var FilePath = Path.Combine(UploadsFolder, FileName);
 
-            return CreatedAtAction("GetPhoto", new { id = photo.Id }, photo);
+            using (var stream = new FileStream(FilePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            var photos = new Photo
+            {
+                Title = photo.FileName,
+                FileName = FileName,
+                FileExtension = Path.GetExtension(FileName)
+            };
+            
+            _context.Photos.Add(photos);
+            await _context.SaveChangesAsync();
+            
+            return Ok(new { message = "Фото загружено!", photo = photo });
+            //return CreatedAtAction("GetPhoto", new { id = photo.Id }, photo);
         }
 
         // DELETE: api/PhotoControll/5
@@ -104,5 +125,6 @@ namespace GallaryApp.Controllers
         {
             return _context.Photos.Any(e => e.Id == id);
         }
+        
     }
 }
