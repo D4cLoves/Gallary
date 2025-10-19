@@ -1,5 +1,25 @@
+# IDE files
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+riderModule.iml
+
+# Build results
 bin/
 obj/
 /packages/
-riderModule.iml
-/_ReSharper.Caches/
+
+# ReSharper
+_ReSharper.Caches/
+*.csproj.Roslyn.dev.json
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Visual Studio Code
+.vscode/
