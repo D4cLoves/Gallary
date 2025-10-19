@@ -12,11 +12,24 @@
         ➕ Добавить фото
     </button>
 </div>
-<div id="photoGallery" style="margin-top: 20px;">
+<div id="photoGallery" style="margin-top: 20px;" >
     <p>Фотографии появятся здесь...</p>
 </div>
 
 <script>
+    async function deletePhoto(photoId) {
+        $.ajax({
+            url: `api/PhotoControll/${photoId}`,
+            type: 'DELETE',
+            success: function (result) {
+                loadPhotos();
+            },
+            error: function(xhr) {
+                alert('Ошибка: ' + xhr.responseText);
+            }
+        });
+    }
+
     function selectPhoto() {
         document.getElementById('photoFile').click();
     }
@@ -68,7 +81,8 @@
                 imgDiv.innerHTML = `
                     <img src="/uploads/${photo.fileName}" 
                          alt="${photo.title}" 
-                         style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px;">
+                         style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px;"
+                         ondblclick="deletePhoto(${photo.id})">
                     <div>${photo.title}</div>
                 `;
 

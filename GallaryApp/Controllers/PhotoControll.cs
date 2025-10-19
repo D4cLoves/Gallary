@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -114,7 +115,11 @@ namespace GallaryApp.Controllers
             {
                 return NotFound();
             }
-
+            
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", photo.FileName);
+            System.IO.File.Delete(filePath);
+            Console.WriteLine($"Файл удален: {filePath}");
+            
             _context.Photos.Remove(photo);
             await _context.SaveChangesAsync();
 
