@@ -1,0 +1,82 @@
+@page
+@model GallaryApp.Pages.PhotoView.PhotoGallary
+@{
+    ViewData["Title"] = "Photo Gallary";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<div class="mb-3">
+    <input type="file" id="photoFile" accept="image/*" style="display: none;" onchange="uploadPhoto()">
+    <button class="btn btn-primary" onclick="document.getElementById('photoFile').click()">
+        ➕ Добавить фото
+    </button>
+</div>
+<div id="photoGallery" style="margin-top: 20px;">
+    <p>Фотографии появятся здесь...</p>
+</div>
+
+<script>
+    function selectPhoto() {
+        document.getElementById('photoFile').click();
+    }
+    async function uploadPhoto()
+    {
+        const FileInput = document.getElementById("photoFile");
+
+        if (!FileInput.files) {
+            alert('Браузер не поддерживает загрузку файлов');
+            return;
+        }
+
+        const file = FileInput.files[0];
+        
+        const formData = new FormData();
+        formData.append("photo", file);
+        
+        $.ajax({
+            url: '/api/PhotoControll',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(photo) {
+                alert('Фото "' + photo.title + '" загружено!');
+                $('#photoTitle').val('');  // Очищаем поле
+                $('#photoFile').val('');   // Очищаем файл
+                loadPhotos();
+            },
+            error: function(xhr) {
+                alert('Ошибка: ' + xhr.responseText);
+            }
+        });
+    }
+
+    async function loadPhotos() {
+        try {
+            const response = await fetch('/api/PhotoControll');
+            const photos = await response.json();
+
+            const gallery = document.getElementById('photoGallery');
+            gallery.innerHTML = '';
+
+            photos.forEach(photo => {
+                const imgDiv = document.createElement('div');
+                imgDiv.style.margin = '10px';
+                imgDiv.style.display = 'inline-block';
+
+                imgDiv.innerHTML = `
+                    <img src="/uploads/${photo.fileName}" 
+                         alt="${photo.title}" 
+                         style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px;">
+                    <div>${photo.title}</div>
+                `;
+
+                gallery.appendChild(imgDiv);
+            });
+        } catch (error) {
+            console.error('Ошибка загрузки фото:', error);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', loadPhotos);
+</script>
